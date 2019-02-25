@@ -1,41 +1,41 @@
 <?php
 // **********************************************
-// *** 外部ファイル ***
+// *** External file ***
 // **********************************************
-// configファイル
+// config file
 require_once '/usr/lib/zabbix/alertscripts/zabbix-twilio/config.php';
-// Twilio PHP ライブラリ
+// Twilio PHP Library
 require_once $SCRIPT_DIR . '/lib/twilio-php-latest/Services/Twilio.php';
-// Logger クラス
+// Logger  class
 require_once $SCRIPT_DIR . '/Logger.php';
 
 
 // **********************************************
-// *** メイン ***
+// *** Maine ***
 // **********************************************
 $log = new Logger ( $LOG_DIR . '/' . basename($_SERVER['SCRIPT_FILENAME'], '.php') . '.log', $DEBUG_FLG );
 $log->info ( 'Start' );
 
 $log->debug ( $_REQUEST );
 
-// コマンド指定確認
+//  Confirm command specification
 if (! isset ( $_REQUEST ['cmd'] )) {
-	$log->error ( '不正なリクエストです。' );
+	$log->error ( 'Invalid request' );
 	$log->error ( $_REQUEST );
 	exit ();
 }
 
 Switch ($_REQUEST ['cmd']) {
-	case "register" : // Zabbixへ登録
+	case "register" : // Register to Zabbix
 		if (! isset ( $_REQUEST ['Digits'] )) {
-			$log->info ( "Digits 未入力" );
+			$log->info ( "Digits missing" );
 			exit ();
 		}
 
-		// 入力キー確認
+		// Check input key
 		Switch ($_REQUEST ['Digits']) {
 			case $DIGITS :
-				$log->info ( 'Zabbixへ登録処理開始' );
+				$log->info ( 'Start registration process to Zabbix' );
 
 				$log->debug ( "ZABBIX_API:$ZABBIX_API ZABBIX_USER:$ZABBIX_USER ZABBIX_PASS:$ZABBIX_PASS" );
 				$log->debug ( "MESSAGE_REG_OK:$MESSAGE_REG_OK" );
@@ -47,17 +47,17 @@ Switch ($_REQUEST ['cmd']) {
 					$api = new Zabbix_API ( $ZABBIX_API, $ZABBIX_USER, $ZABBIX_PASS );
 					$api_res = $api->request('event.acknowledge', array (
 							'eventids' => $_REQUEST ['eventid'],
-							'message' => $_REQUEST ['name'] . ' が受電確認済み。'
+							'message' => $_REQUEST ['name'] . ' has received power confirmation '
 					) );
 
-					// 登録成功
+					// registration failure
 					$response->say ( $MESSAGE_REG_OK, array (
 							'voice' => 'woman',
 							'language' => 'ja-JP'
 					) );
 					header ( 'Content-type: text/xml' );
 					print $response;
-					$log->info ( 'Zabbixへの登録成功' );
+					$log->info ( 'Successful registration to Zabbix' );
 					$log->debug ( $response );
 				} catch ( Exception $e ) {
 					// 登録失敗
