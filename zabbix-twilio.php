@@ -60,7 +60,7 @@ Switch ($_REQUEST ['cmd']) {
 					$log->info ( 'Successful registration to Zabbix' );
 					$log->debug ( $response );
 				} catch ( Exception $e ) {
-					// 登録失敗
+					// Registration failure
 					$response->say ( $MESSAGE_REG_NG, array (
 							'voice' => 'woman',
 							'language' => 'ja-JP'
@@ -69,7 +69,7 @@ Switch ($_REQUEST ['cmd']) {
 					print $response;
 					$log->debug ( $response );
 
-					$log->error ( 'Zabbixへの登録失敗 ' );
+					$log->error ( 'Registration to Zabbix failed ' );
 					$log->error ( $e->getMessage () );
 
 					return $e->getMessage ();
@@ -79,7 +79,7 @@ Switch ($_REQUEST ['cmd']) {
 			case 0 :
 			case 1 < $_REQUEST ['Digits'] and $_REQUEST ['Digits'] < 10 :
 				$log->info ( "Digits 不一致 Digits:$_REQUEST ['Digits]" );
-				$log->info ( "再入力処理開始" );
+				$log->info ( "Start re-input processing" );
 
 				$log->debug ( "MESSAGE_RETYPE:$MESSAGE_RETYPE" );
 
@@ -91,11 +91,11 @@ Switch ($_REQUEST ['cmd']) {
 						'numDigits' => $DIGITS_NUM
 				) );
 
-				// $$DIGITS$$を置き換え
+				// $$Replace DIGITS $$
 				$message = str_replace ( '$$DIGITS$$', $DIGITS, $MESSAGE_RETYPE );
 				$gather->say ( $message, array (
 						'voice' => 'woman',
-						'language' => 'ja-JP'
+						'language' => 'en-GB'
 				) );
 
 				header ( 'Content-type: text/xml' );
@@ -105,14 +105,14 @@ Switch ($_REQUEST ['cmd']) {
 				break;
 		}
 		break;
-	case "notice" : // アラート通知
-		$log->info ( "自動通知処理開始" );
+	case "notice" : // Alert notification
+		$log->info ( "Automatic notification processing start" );
 
-		// URLデコード
+		// URL decode
 		$message = urldecode ( $_REQUEST ['message'] );
 		// $$MESSAGE$$
 		$message = str_replace ( '$$MESSAGE$$', $message, $MESSAGE_NOTICE );
-		// $$DIGITS$$を置き換え
+		// $$Replace DIGITS $$
 		$message = str_replace ( '$$DIGITS$$', $DIGITS, $message );
 
 		$log->debug ( "MESSAGE:$message" );
@@ -163,7 +163,7 @@ class Zabbix_API  {
 	}
 
 	public function request($method, $params) {
-		// APIをJSONエンコード
+		//JSON-encoded API
 		$content = json_encode( array (
 				'jsonrpc' => '2.0',
 				'method'  => $method,
@@ -172,7 +172,7 @@ class Zabbix_API  {
 				'id'      => '1'
 		));
 
-		// リクエストオプション
+		// Request option
 		$context = stream_context_create(array('http' => array(
 				'method'  => 'POST',
 				'header'  => 'Content-type: application/json-rpc; charset=UTF-8' . "\r\n",
@@ -180,24 +180,24 @@ class Zabbix_API  {
 				'ignore_errors' => true
 		)));
 
-		// リクエスト
+		// request
 		$res = @file_get_contents ( $this->api_url, false, $context);
 		if (!$res) {
-			throw new Exception('"' . $this->api_url . '"' . 'からデータを取得できません。');
+			throw new Exception('"' . $this->api_url . '"' . 'Can not get data from.');
 		}
 
-		// JSONデコード
+		// JSON decode
 		$api_res = json_decode($res, true);
 
 		if (!$api_res) {
 			$msg = print_r($res, true);
-			throw new Exception('レスポンスデータがJSON形式ではありません。' . "\n\n" . $msg);
+			throw new Exception('Response data is not in JSON format' . "\n\n" . $msg);
 		}
 
 		// APIの返り値チェック
 		if (array_key_exists('error', $api_res)) {
 			$msg = print_r($api_res, true);
-			throw new Exception('API エラーが発生しました。' . "\n\n" . $msg);
+			throw new Exception('API An error occurred' . "\n\n" . $msg);
 		}
 		return $api_res;
 	}

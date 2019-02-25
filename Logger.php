@@ -33,7 +33,7 @@ class Logger {
 		}
 
 		if (! error_log ( $log, 3, $this->_logfile )) {
-			throw new Exception ( 'ログ出力に失敗しました。' );
+			throw new Exception ( 'Log output failed.' );
 		}
 	}
 
