@@ -30,3 +30,5 @@ zabbix - twilio is distributed under MIT License.
 Refer to the LICENSE file for the contents of the license.
 
 Copyright (C) 2014 BeGood Technology Inc. All Rights Reserved.
+
+* This is a translated version to english from original takahiro-tsutsumi. There is no new code. 
